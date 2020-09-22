@@ -1,16 +1,42 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+const Login = () => import('../views/login.vue')
+const Home = () => import('../views/home.vue')
+
 Vue.use(VueRouter)
-
-const routes = [
-
-]
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
-  routes
+  routes: [{
+      path: '',
+      redirect: '/login'
+    },
+    {
+      path: '/login',
+      component: Login
+    },
+    {
+      path: '/home',
+      component: Home
+    }
+  ]
+})
+
+//调用某些api接口的时候需要用户已经登录，通过检查sessionStorage中有无token判断用户是否已经登录
+//调用next函数表示放行
+router.beforeEach((to,from,next)=>{
+  if(to.path === '/login'){
+    return next()
+  }
+
+  const tokenStr = sessionStorage.getItem('token')
+  if(!tokenStr){
+    //next中直接放路径表示强制跳转
+    return next('/login')
+  }
+
+  next()
 })
 
 export default router

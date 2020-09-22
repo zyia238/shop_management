@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    this is a brand new project , i am gonna finish it and get a well-paid job for sure! ty
+    <router-view></router-view>
   </div>
 </template>
 
@@ -13,5 +13,5 @@ export default {
 </script>
 
 <style>
-
+@import './assets/css/base.css';
 </style>
