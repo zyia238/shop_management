@@ -3,6 +3,9 @@ import VueRouter from 'vue-router'
 
 const Login = () => import('../views/login.vue')
 const Home = () => import('../views/home.vue')
+const Welcome = () => import('../components/Home/welcomePage.vue')
+const User = () => import('../components/Home/user.vue')
+const Roles = () => import('../components/Home/roles.vue')
 
 Vue.use(VueRouter)
 
@@ -18,20 +21,34 @@ const router = new VueRouter({
     },
     {
       path: '/home',
-      component: Home
+      component: Home,
+      redirect:'/home/welcome',
+      children: [{
+        path: 'welcome',
+        component:Welcome
+      },
+      {
+        path: 'users',
+        component:User
+      },
+      {
+        path: 'roles',
+        component:Roles
+      }
+    ]
     }
   ]
 })
 
 //调用某些api接口的时候需要用户已经登录，通过检查sessionStorage中有无token判断用户是否已经登录
 //调用next函数表示放行
-router.beforeEach((to,from,next)=>{
-  if(to.path === '/login'){
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
     return next()
   }
 
   const tokenStr = sessionStorage.getItem('token')
-  if(!tokenStr){
+  if (!tokenStr) {
     //next中直接放路径表示强制跳转
     return next('/login')
   }
