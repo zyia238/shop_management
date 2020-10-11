@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 面包屑导航 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
@@ -32,7 +33,7 @@
             <el-switch v-model="scope.row.mg_state" @change="changeStatus(scope.row)"></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="300">
           <template slot-scope="scope" width="180px">
             <!-- 编辑用户按钮 -->
             <el-button
@@ -42,9 +43,19 @@
               @click="showEditDialog(scope.row.id)"
             ></el-button>
             <!-- 删除用户按钮 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click='deleteUser(scope.row.id)'></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              @click="deleteUser(scope.row.id)"
+            ></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                size="mini"
+                @click="allocateCharacter(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -102,6 +113,27 @@
         <el-button type="primary" @click="editFormConfirm">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 分配角色的弹出对话框 -->
+    <el-dialog title="分配角色" :visible.sync="allocateDialogueVisible" width="50%">
+      <p>当前的用户名:{{userName}}</p>
+      <p>当前的角色:{{roleName}}</p>
+      <p>
+        分配新角色：
+        <el-select v-model="selectedRoleID" placeholder="请选择">
+          <el-option
+            v-for="item in characterList"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="allocateDialogueVisible = false">取 消</el-button>
+        <el-button type="primary" @click="allocateCharacterReq">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -112,8 +144,11 @@ import {
   addUser,
   getEditUserFromInfo,
   editUserInfo,
-  deleteUserInfo
+  deleteUserInfo,
+  allocateCharacter
 } from "../../network/home";
+
+import { getCharacterList } from "../../network/rights";
 export default {
   name: "user",
   data() {
@@ -142,6 +177,7 @@ export default {
       userList: [],
       dialogVisible: false,
       editDialogVisible: false,
+      allocateDialogueVisible: false,
       editForm: {
         userName: "",
         email: "",
@@ -184,7 +220,12 @@ export default {
           //自定义的手机号格式校验
           { validator: checkMobile, trigger: "blur" }
         ]
-      }
+      },
+      userName: "",
+      roleName: "",
+      characterList: [],
+      selectedRoleID:'',
+      currentUser:''
     };
   },
   created() {
@@ -192,7 +233,6 @@ export default {
     this.getUserList();
   },
   methods: {
-
     getUserList() {
       getUserList(this.query, this.pagenum, this.pagesize).then(res => {
         console.log(res);
@@ -220,27 +260,28 @@ export default {
       this.$refs.editUserRef.resetFields();
     },
 
-    deleteUser(id){
-      console.log(id)
-      deleteUserInfo(id).then(res=>{
-        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+    deleteUser(id) {
+      console.log(id);
+      deleteUserInfo(id).then(res => {
+        this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+            this.getUserList();
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消删除"
+            });
           });
-          this.getUserList();
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
-      })
-      
+      });
     },
     handleSizeChange(newSize) {
       this.pagesize = newSize;
@@ -266,13 +307,13 @@ export default {
           this.editForm.email,
           this.editForm.mobile
         ).then(res => {
-          console.log(res)
+          console.log(res);
           if (res.data.meta.status !== 200) {
             return this.$message.error("修改用户信息失败");
           }
           this.editDialogVisible = false;
           this.getUserList();
-          this.$message.success('修改用户信息成功')
+          this.$message.success("修改用户信息成功");
         });
       });
     },
@@ -300,6 +341,27 @@ export default {
         });
         this.dialogVisible = false;
       });
+    },
+    allocateCharacter(scope) {
+      this.allocateDialogueVisible = true;
+      console.log(scope)
+      getCharacterList().then(res => {
+        this.characterList = res.data.data;
+      });
+      this.userName = scope.username;
+      this.roleName = scope.role_name;
+      this.currentUser = scope.id
+    },
+    allocateCharacterReq(){
+      allocateCharacter(this.currentUser,this.selectedRoleID).then(res => {
+        // console.log(res)
+        if(res.data.meta.status !== 200){
+          this.$message.error('分配角色失败')
+        }
+         this.getUserList();
+         this.allocateDialogueVisible = false
+         this.selectedRoleID = ''
+      })
     }
   }
 };
@@ -318,5 +380,9 @@ export default {
   margin: 20px 0;
   display: flex;
   justify-content: center;
+}
+
+p {
+  margin: 14px;
 }
 </style>

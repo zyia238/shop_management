@@ -69,3 +69,13 @@ export function deleteUserInfo(id){
         }
     })
 }
+
+export function allocateCharacter(id,rid){
+    return request({
+        url:'users/'+ id +'/role',
+        method:'put',
+        data:{
+            rid
+        }
+    })
+}
