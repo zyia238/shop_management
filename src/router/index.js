@@ -7,6 +7,7 @@ const Welcome = () => import('../components/Home/welcomePage.vue')
 const User = () => import('../components/Home/user.vue')
 const Roles = () => import('../components/Rights/roles.vue')
 const rights = () => import('../components/Rights/rights.vue')
+const Goods_cate = () => import ('../components/Goods/Goods_category/goods_cate.vue')
 
 Vue.use(VueRouter)
 
@@ -38,6 +39,10 @@ const router = new VueRouter({
       },{
         path:'rights',
         component:rights
+      },
+      {
+        path:'categories',
+        component:Goods_cate
       }
     ]
     }
