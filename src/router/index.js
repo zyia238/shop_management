@@ -8,6 +8,7 @@ const User = () => import('../components/Home/user.vue')
 const Roles = () => import('../components/Rights/roles.vue')
 const rights = () => import('../components/Rights/rights.vue')
 const Goods_cate = () => import ('../components/Goods/Goods_category/goods_cate.vue')
+const Goods_params = () => import ('../components/Goods/Goods_params/goods_params.vue')
 
 Vue.use(VueRouter)
 
@@ -43,6 +44,10 @@ const router = new VueRouter({
       {
         path:'categories',
         component:Goods_cate
+      },
+      {
+        path:'params',
+        component:Goods_params
       }
     ]
     }

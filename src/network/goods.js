@@ -31,3 +31,69 @@ export function addParentsGoodsList(){
         }
     })
 }
+
+export function addAllParentsGoodsList(){
+    return request({
+        url:'/categories'
+    })
+}
+
+export function getParamsList(id,sel){
+    return request({
+        url:'categories/'+ id + '/attributes',
+        params:{
+            sel
+        }
+    })
+}
+
+export function addParams(id,attr_name,attr_sel){
+    return request({
+        url:'categories/'+ id + '/attributes',
+        method:'post',
+        data:{
+            attr_name,
+            attr_sel
+        }
+    })
+}
+
+export function queryParams(id,attr_id,attr_sel){
+    return request({
+        url:'categories/'+ id + '/attributes/' + attr_id,
+        params:{
+            attr_sel
+        }
+    })
+}
+
+export function editParams(id,attr_id,attr_name,attr_sel){
+    return request({
+        url:'categories/'+ id + '/attributes/' + attr_id,
+        method:'put',
+        data:{
+            attr_sel,
+            attr_name
+        }
+    })
+}
+
+export function addParamsTags(id,attr_id,attr_name,attr_sel,attr_vals){
+    return request({
+        url:'categories/'+ id + '/attributes/' + attr_id,
+        method:'put',
+        data:{
+            attr_sel,
+            attr_name,
+            attr_vals
+        }
+    })
+}
+
+
+export function deleteParams(id,attr_id){
+    return request({
+        url:'categories/'+ id + '/attributes/' + attr_id,
+        method:'delete'
+    })
+}
