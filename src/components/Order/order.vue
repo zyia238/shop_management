@@ -36,7 +36,7 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="showEditLocationDialog"
+              @click="showEditLocationDialog(scope.row)"
             ></el-button>
             <el-button
               type="success"
